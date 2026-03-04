@@ -13,8 +13,8 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 :root {
   --bg:   #09090e;
-  --c1:   #111118;   /* card bg */
-  --c2:   #181825;   /* card hover */
+  --c1:   #111118;
+  --c2:   #181825;
   --line: #22223a;
   --dim:  #505068;
   --mid:  #8080a0;
@@ -40,8 +40,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--M); min-hei
 .boot-title { font-family: var(--H); font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; color: var(--snow); }
 .boot-title span { color: var(--lime); }
 .boot-bar  { width: 160px; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; }
-.boot-fill { height: 100%; background: var(--lime); animation: bload 1.8s ease forwards; }
-@keyframes bload { to { width: 100%; } }
+.boot-fill { height: 100%; background: var(--lime); width: 0; transition: width .3s ease; }
 .boot-sub  { font-size: .6rem; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; }
 #app { display: none; }
 
@@ -90,6 +89,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--M); min-hei
   background-repeat: no-repeat; background-position: right 6px center;
   transition: border-color .15s;
 }
+/* FIX: active filter highlight */
+.fg select.active { border-color: var(--lime); color: var(--lime); }
 .fg select:focus { outline: none; border-color: var(--lime); }
 .fg select option { background: #181825; }
 .reset-btn {
@@ -128,12 +129,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--M); min-hei
 .kpi-sub b { color: var(--mid); font-weight: 400; }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   LAYOUT — uniform fixed-height grids
-   Every cell in a grid is identical width.
-   Card inner content clips to a fixed height
-   so nothing ever stretches unevenly.
+   LAYOUT GRIDS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/* 2×2 equal grid — used for Overview (4 cards) and Salary (4 cards) */
 .grid-2x2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -141,25 +138,22 @@ body { background: var(--bg); color: var(--text); font-family: var(--M); min-hei
   gap: 12px;
   margin-bottom: 12px;
 }
-/* 1×2 equal grid — used for Skills (2 cards) */
 .grid-1x2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 12px;
 }
-/* single full-width */
 .grid-1x1 {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
   margin-bottom: 12px;
 }
-/* Fixed-height card body — content fills height, clips overflow */
 .card-body-fixed {
   padding: 12px 14px;
   height: var(--card-h, 280px);
-  overflow: hidden;              /* clip, don't scroll — bars fill space */
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -167,7 +161,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--M); min-hei
 .card-body-fixed::-webkit-scrollbar { width: 3px; }
 .card-body-fixed::-webkit-scrollbar-track { background: transparent; }
 .card-body-fixed::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
-/* Chart wrapper at fixed height */
 .cw-fixed {
   padding: 10px 12px 12px;
   height: var(--card-h, 280px);
@@ -187,26 +180,48 @@ body { background: var(--bg); color: var(--text); font-family: var(--M); min-hei
 .card-body  { padding: 12px 14px; }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   HORIZONTAL BAR LIST
-   Fixed-width label | track | value
-   No flex tricks — pure grid per row
+   EMPTY STATE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/* Bar list fills its container height, rows distributed evenly */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; gap: 8px; padding: 20px;
+}
+.empty-state-icon  { font-size: 1.6rem; opacity: .4; }
+.empty-state-title { font-family: var(--H); font-size: .75rem; font-weight: 700; color: var(--dim); text-align: center; }
+.empty-state-sub   { font-size: .6rem; color: var(--dim); opacity: .6; text-align: center; }
+
+/* Full-page empty — shown when FLT is empty */
+.page-empty {
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 320px; gap: 12px;
+}
+.page-empty.on { display: flex; }
+.page-empty-icon  { font-size: 2.5rem; opacity: .25; }
+.page-empty-title { font-family: var(--H); font-size: 1rem; font-weight: 800; color: var(--dim); letter-spacing: -.01em; }
+.page-empty-sub   { font-size: .65rem; color: var(--dim); opacity: .6; }
+.page-empty-btn {
+  margin-top: 8px; padding: 7px 18px; background: none;
+  border: 1px solid var(--line); color: var(--mid); font-family: var(--M);
+  font-size: .65rem; border-radius: 2px; cursor: pointer; transition: all .15s;
+}
+.page-empty-btn:hover { border-color: var(--lime); color: var(--lime); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   HORIZONTAL BAR LIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .blist {
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* rows spread to fill full height */
-  height: 100%;                   /* inherit fixed height from parent */
-  gap: 0;                         /* space-between handles spacing */
+  justify-content: space-between;
+  height: 100%;
+  gap: 0;
 }
-
-/* Each row stretches to fill its share */
 .brow {
   display: grid;
   grid-template-columns: var(--lw, 120px) 1fr 60px;
   align-items: center;
   gap: 8px;
-  flex: 1;                        /* each row takes equal vertical share */
+  flex: 1;
   min-height: 0;
 }
 .brow-label { font-size: .68rem; color: var(--mid); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -283,6 +298,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--M); min-hei
   font-family: var(--H); font-size: .62rem; font-weight: 700; letter-spacing: .06em;
   text-transform: uppercase; text-decoration: none; border-radius: 2px; transition: all .15s;
 }
+/* FIX: CSS hover replaces inline onmouseover/onmouseout */
+.cc-cta:hover { filter: brightness(0) invert(1) !important; }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    FACT / INFO BOX
@@ -298,7 +315,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--M); min-hei
 .fact-text  { font-size: .62rem; color: var(--dim); line-height: 1.5; }
 .fact-text b { color: var(--lime); font-weight: 400; }
 
-/* Caveat */
 .caveat {
   margin: 10px 12px 12px; padding: 7px 10px;
   border: 1px solid var(--line); border-left: 2px solid var(--lime);
@@ -322,8 +338,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--M); min-hei
 <!-- ── BOOT ──────────────────────────────────────────── -->
 <div id="boot">
   <div class="boot-title">India IT <span>Intelligence</span></div>
-  <div class="boot-bar"><div class="boot-fill"></div></div>
-  <div class="boot-sub">Loading 34,646 records</div>
+  <div class="boot-bar"><div class="boot-fill" id="boot-fill"></div></div>
+  <div class="boot-sub" id="boot-sub">Initialising…</div>
 </div>
 
 <!-- ── APP ───────────────────────────────────────────── -->
@@ -354,159 +370,177 @@ body { background: var(--bg); color: var(--text); font-family: var(--M); min-hei
     <!-- ════════════════ OVERVIEW ════════════════ -->
     <div class="page on" id="pg-overview">
 
-      <div class="kpi-row" style="margin-bottom:12px">
-        <div class="kpi"><div class="kpi-tag">Total Listings</div><div class="kpi-num" id="k-n">—</div><div class="kpi-sub"><b id="k-cos">—</b> companies · <b id="k-loc">—</b> cities</div></div>
-        <div class="kpi"><div class="kpi-tag">Avg Annual Salary</div><div class="kpi-num lime" id="k-avg">—</div><div class="kpi-sub">Median <b id="k-med">—</b></div></div>
-        <div class="kpi"><div class="kpi-tag">Most In-Demand Role</div><div class="kpi-num teal" id="k-role">—</div><div class="kpi-sub"><b id="k-rn">—</b> listings</div></div>
-        <div class="kpi"><div class="kpi-tag">Top Skill (demand)</div><div class="kpi-num lime" id="k-sk">—</div><div class="kpi-sub"><b id="k-skn">—</b> listings</div></div>
+      <!-- EMPTY STATE for overview -->
+      <div class="page-empty" id="empty-overview">
+        <div class="page-empty-icon">🔍</div>
+        <div class="page-empty-title">No records match your filters</div>
+        <div class="page-empty-sub">Try adjusting or resetting the filters above</div>
+        <button class="page-empty-btn" onclick="rst()">↺ Reset Filters</button>
       </div>
 
-      <!-- 2×2 uniform grid — all 4 cards identical width/height -->
-      <div class="grid-2x2">
+      <div id="content-overview">
+        <div class="kpi-row" style="margin-bottom:12px">
+          <div class="kpi"><div class="kpi-tag">Total Listings</div><div class="kpi-num" id="k-n">—</div><div class="kpi-sub"><b id="k-cos">—</b> companies · <b id="k-loc">—</b> cities</div></div>
+          <div class="kpi"><div class="kpi-tag">Avg Annual Salary</div><div class="kpi-num lime" id="k-avg">—</div><div class="kpi-sub">Median <b id="k-med">—</b></div></div>
+          <div class="kpi"><div class="kpi-tag">Most In-Demand Role</div><div class="kpi-num teal" id="k-role">—</div><div class="kpi-sub"><b id="k-rn">—</b> listings</div></div>
+          <div class="kpi"><div class="kpi-tag">Top Skill (demand)</div><div class="kpi-num lime" id="k-sk">—</div><div class="kpi-sub"><b id="k-skn">—</b> listings</div></div>
+        </div>
 
-        <!-- Card 1: Role Demand -->
-        <div class="card">
-          <div class="card-hd">
-            <div><div class="card-title">Role Demand</div><div class="card-sub">listings by job title</div></div>
-            <div class="card-pill" id="ov-rp">—</div>
+        <div class="grid-2x2">
+          <div class="card">
+            <div class="card-hd">
+              <div><div class="card-title">Role Demand</div><div class="card-sub">listings by job title</div></div>
+              <div class="card-pill" id="ov-rp">—</div>
+            </div>
+            <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="ov-roles"></div></div>
           </div>
-          <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="ov-roles"></div></div>
-        </div>
 
-        <!-- Card 2: Top Skills -->
-        <div class="card">
-          <div class="card-hd">
-            <div><div class="card-title">Top Skills in Market</div><div class="card-sub">listing frequency — not a salary metric</div></div>
-            <div class="card-pill">demand</div>
+          <div class="card">
+            <div class="card-hd">
+              <div><div class="card-title">Top Skills in Market</div><div class="card-sub">listing frequency — not a salary metric</div></div>
+              <div class="card-pill">demand</div>
+            </div>
+            <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="ov-skills"></div></div>
           </div>
-          <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="ov-skills"></div></div>
-        </div>
 
-        <!-- Card 3: Skill Categories donut -->
-        <div class="card">
-          <div class="card-hd"><div><div class="card-title">Skill Categories</div><div class="card-sub">share of all listings</div></div></div>
-          <div class="card-body-fixed" style="--card-h:280px;padding:0;display:flex;flex-direction:column;">
-            <div style="flex:1;padding:10px 12px 6px;min-height:0"><canvas id="ov-donut"></canvas></div>
-            <div class="donut-leg" id="ov-leg" style="flex-shrink:0"></div>
+          <div class="card">
+            <div class="card-hd"><div><div class="card-title">Skill Categories</div><div class="card-sub">share of all listings</div></div></div>
+            <div class="card-body-fixed" style="--card-h:280px;padding:0;display:flex;flex-direction:column;">
+              <div style="flex:1;padding:10px 12px 6px;min-height:0"><canvas id="ov-donut"></canvas></div>
+              <div class="donut-leg" id="ov-leg" style="flex-shrink:0"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><div><div class="card-title">City Hiring Volume</div><div class="card-sub">listings only — location explains &lt;1% of salary variance</div></div></div>
+            <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="ov-geo"></div></div>
           </div>
         </div>
-
-        <!-- Card 4: City Hiring Volume -->
-        <div class="card">
-          <div class="card-hd"><div><div class="card-title">City Hiring Volume</div><div class="card-sub">listings only — location explains &lt;1% of salary variance</div></div></div>
-          <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="ov-geo"></div></div>
-        </div>
-
       </div>
-
     </div>
 
     <!-- ════════════════ SKILLS ════════════════ -->
     <div class="page" id="pg-skills">
 
-      <div class="fact">
-        <span class="fact-icon">📌</span>
-        <div>
-          <div class="fact-title">About this section</div>
-          <div class="fact-text">All charts show <b>demand</b> (listing frequency). Salary is driven by <b>experience (76% of variance)</b> — not individual skills. Use frequency as your career planning signal.</div>
-        </div>
+      <div class="page-empty" id="empty-skills">
+        <div class="page-empty-icon">🔍</div>
+        <div class="page-empty-title">No records match your filters</div>
+        <div class="page-empty-sub">Try adjusting or resetting the filters above</div>
+        <button class="page-empty-btn" onclick="rst()">↺ Reset Filters</button>
       </div>
 
-      <!-- 1×2 uniform grid — both cards identical width/height -->
-      <div class="grid-1x2">
-        <div class="card">
-          <div class="card-hd">
-            <div><div class="card-title">Most In-Demand Skills</div><div class="card-sub">listing frequency · top 10</div></div>
-            <div class="card-pill" id="sk-dp">—</div>
+      <div id="content-skills">
+        <div class="fact">
+          <span class="fact-icon">📌</span>
+          <div>
+            <div class="fact-title">About this section</div>
+            <div class="fact-text">All charts show <b>demand</b> (listing frequency). Salary is driven by <b>experience (76% of variance)</b> — not individual skills. Use frequency as your career planning signal.</div>
           </div>
-          <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="sk-demand"></div></div>
         </div>
-        <div class="card">
-          <div class="card-hd"><div><div class="card-title">Skill Type Distribution</div><div class="card-sub">category share of all listings</div></div></div>
-          <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="sk-cats"></div></div>
+
+        <div class="grid-1x2">
+          <div class="card">
+            <div class="card-hd">
+              <div><div class="card-title">Most In-Demand Skills</div><div class="card-sub">listing frequency · top 10</div></div>
+              <div class="card-pill" id="sk-dp">—</div>
+            </div>
+            <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="sk-demand"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-hd"><div><div class="card-title">Skill Type Distribution</div><div class="card-sub">category share of all listings</div></div></div>
+            <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="sk-cats"></div></div>
+          </div>
         </div>
+
+        <div class="catcols" id="sk-catgrid"></div>
       </div>
-
-      <div class="catcols" id="sk-catgrid"></div>
-
     </div>
 
     <!-- ════════════════ SALARY ════════════════ -->
     <div class="page" id="pg-salary">
 
-      <div class="fact">
-        <span class="fact-icon">📊</span>
-        <div>
-          <div class="fact-title">What actually drives salary</div>
-          <div class="fact-text">Experience explains <b>76% of salary variance</b>. Job title ~5%. City &lt;1%. Seniority is the dominant compensation lever — focus here first.</div>
-        </div>
+      <div class="page-empty" id="empty-salary">
+        <div class="page-empty-icon">🔍</div>
+        <div class="page-empty-title">No records match your filters</div>
+        <div class="page-empty-sub">Try adjusting or resetting the filters above</div>
+        <button class="page-empty-btn" onclick="rst()">↺ Reset Filters</button>
       </div>
 
-      <div class="kpi-row" style="margin-bottom:12px">
-        <div class="kpi"><div class="kpi-tag">Salary Floor</div><div class="kpi-num">₹3L</div><div class="kpi-sub">Entry, 0–3 yrs</div></div>
-        <div class="kpi"><div class="kpi-tag">Salary Ceiling</div><div class="kpi-num lime">₹50L</div><div class="kpi-sub">Senior specialists</div></div>
-        <div class="kpi"><div class="kpi-tag">Peak Salary Band</div><div class="kpi-num teal">₹20–25L</div><div class="kpi-sub">Highest listing count</div></div>
-        <div class="kpi"><div class="kpi-tag">Senior vs Entry</div><div class="kpi-num lime">5.1×</div><div class="kpi-sub">The #1 pay lever</div></div>
-      </div>
-
-      <!-- 2×2 uniform grid — all 4 salary cards identical width/height -->
-      <div class="grid-2x2">
-
-        <!-- Card 1: Experience Ladder -->
-        <div class="card">
-          <div class="card-hd">
-            <div><div class="card-title">Experience Ladder</div><div class="card-sub">avg &amp; median salary by band</div></div>
-            <div class="card-pill">76% variance</div>
+      <div id="content-salary">
+        <div class="fact">
+          <span class="fact-icon">📊</span>
+          <div>
+            <div class="fact-title">What actually drives salary</div>
+            <div class="fact-text">Experience explains <b>76% of salary variance</b>. Job title ~5%. City &lt;1%. Seniority is the dominant compensation lever — focus here first.</div>
           </div>
-          <div class="cw-fixed" style="--card-h:280px"><canvas id="sal-exp"></canvas></div>
         </div>
 
-        <!-- Card 2: Salary Distribution -->
-        <div class="card">
-          <div class="card-hd"><div><div class="card-title">Salary Distribution</div><div class="card-sub">listing count by pay band</div></div></div>
-          <div class="cw-fixed" style="--card-h:280px"><canvas id="sal-dist"></canvas></div>
+        <div class="kpi-row" style="margin-bottom:12px">
+          <div class="kpi"><div class="kpi-tag">Salary Floor</div><div class="kpi-num">₹3L</div><div class="kpi-sub">Entry, 0–3 yrs</div></div>
+          <div class="kpi"><div class="kpi-tag">Salary Ceiling</div><div class="kpi-num lime">₹50L</div><div class="kpi-sub">Senior specialists</div></div>
+          <div class="kpi"><div class="kpi-tag">Peak Salary Band</div><div class="kpi-num teal">₹20–25L</div><div class="kpi-sub">Highest listing count</div></div>
+          <div class="kpi"><div class="kpi-tag">Senior vs Entry</div><div class="kpi-num lime">5.1×</div><div class="kpi-sub">The #1 pay lever</div></div>
         </div>
 
-        <!-- Card 3: Experience Detail table -->
-        <div class="card">
-          <div class="card-hd"><div><div class="card-title">Experience Detail</div><div class="card-sub">avg · median · count · multiplier vs entry</div></div></div>
-          <div class="card-body-fixed scroll" style="--card-h:280px;padding:0"><table class="etbl" id="sal-etbl"></table></div>
-        </div>
-
-        <!-- Card 4: Avg Salary by Role -->
-        <div class="card">
-          <div class="card-hd">
-            <div><div class="card-title">Avg Salary by Role</div><div class="card-sub">not controlled for experience — directional only</div></div>
-            <div class="card-pill" id="sal-rp">—</div>
+        <div class="grid-2x2">
+          <div class="card">
+            <div class="card-hd">
+              <div><div class="card-title">Experience Ladder</div><div class="card-sub">avg &amp; median salary by band</div></div>
+              <div class="card-pill">76% variance</div>
+            </div>
+            <div class="cw-fixed" style="--card-h:280px"><canvas id="sal-exp"></canvas></div>
           </div>
-          <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="sal-roles"></div></div>
-          <div class="caveat">⚠ Roles with more senior listings show higher averages. This reflects experience mix, not the role itself.</div>
+
+          <div class="card">
+            <div class="card-hd"><div><div class="card-title">Salary Distribution</div><div class="card-sub">listing count by pay band</div></div></div>
+            <div class="cw-fixed" style="--card-h:280px"><canvas id="sal-dist"></canvas></div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd"><div><div class="card-title">Experience Detail</div><div class="card-sub">avg · median · count · multiplier vs entry</div></div></div>
+            <div class="card-body-fixed scroll" style="--card-h:280px;padding:0"><table class="etbl" id="sal-etbl"></table></div>
+          </div>
+
+          <div class="card">
+            <div class="card-hd">
+              <div><div class="card-title">Avg Salary by Role</div><div class="card-sub">not controlled for experience — directional only</div></div>
+              <div class="card-pill" id="sal-rp">—</div>
+            </div>
+            <div class="card-body-fixed" style="--card-h:280px"><div class="blist" id="sal-roles"></div></div>
+            <div class="caveat">⚠ Roles with more senior listings show higher averages. This reflects experience mix, not the role itself.</div>
+          </div>
         </div>
-
       </div>
-
     </div>
 
     <!-- ════════════════ CAREERS ════════════════ -->
     <div class="page" id="pg-careers">
 
-      <div class="fact">
-        <span class="fact-icon">🎯</span>
-        <div>
-          <div class="fact-title">How to use this</div>
-          <div class="fact-text">Listing counts and skills come directly from the data. <b>Salary figures are uncontrolled averages</b> — actual offers depend heavily on your experience level. Skills shown are the most frequently required for each role.</div>
-        </div>
+      <div class="page-empty" id="empty-careers">
+        <div class="page-empty-icon">🔍</div>
+        <div class="page-empty-title">No records match your filters</div>
+        <div class="page-empty-sub">Try adjusting or resetting the filters above</div>
+        <button class="page-empty-btn" onclick="rst()">↺ Reset Filters</button>
       </div>
 
-      <div class="career-grid" id="career-grid"></div>
+      <div id="content-careers">
+        <div class="fact">
+          <span class="fact-icon">🎯</span>
+          <div>
+            <div class="fact-title">How to use this</div>
+            <div class="fact-text">Listing counts and skills come directly from the data. <b>Salary figures are uncontrolled averages</b> — actual offers depend heavily on your experience level. Skills shown are the most frequently required for each role.</div>
+          </div>
+        </div>
 
-      <div class="grid-1x1">
-        <div class="card">
-          <div class="card-hd"><div><div class="card-title">Role Intelligence: Demand vs Avg Salary</div><div class="card-sub">bubble size = listing count · salary is experience-confounded</div></div></div>
-          <div class="cw-fixed" style="--card-h:300px"><canvas id="car-bubble"></canvas></div>
+        <div class="career-grid" id="career-grid"></div>
+
+        <div class="grid-1x1">
+          <div class="card">
+            <div class="card-hd"><div><div class="card-title">Role Intelligence: Demand vs Avg Salary</div><div class="card-sub">bubble size = listing count · salary is experience-confounded</div></div></div>
+            <div class="cw-fixed" style="--card-h:300px"><canvas id="car-bubble"></canvas></div>
+          </div>
         </div>
       </div>
-
     </div>
 
   </div>
@@ -519,27 +553,39 @@ body { background: var(--bg); color: var(--text); font-family: var(--M); min-hei
 let RAW = [], FLT = [];
 const CHARTS = {};
 
-const EXP_ORD = ['0 - 3 yrs', '4 - 7 yrs', '8 - 10 yrs', '10+ yrs'];
-
-const ROADMAPS = {
-  'Data Scientist':   'https://www.youtube.com/watch?v=yBcfzZJ-gS8',
-  'Data Engineer':    'https://www.youtube.com/watch?v=odZHmYgebbw',
-  'Software Engineer':'https://www.youtube.com/watch?v=p2j6Wq57MEE',
-  'Web Developer':    'https://www.youtube.com/watch?v=4WjtQjPQGIs',
-  'Data Analyst':     'https://www.youtube.com/watch?v=qkm5NwKVzDk',
-  'Cloud Engineer':   'https://www.youtube.com/watch?v=VjGVL3P1zqY',
-  'DevOps Engineer':  'https://www.youtube.com/watch?v=9pZ2xmsSDdo',
-  'Cybersecurity':    'https://www.youtube.com/watch?v=hXSFdwIOfnE',
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FIX 4 — HARDCODED CONFIG
+   Single source of truth for role metadata.
+   All three former parallel objects (ROADMAPS,
+   EMOJIS, CAT_COL) consolidated here.
+   EXP_ORD derived from data at boot (see below).
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const ROLE_META = {
+  'Data Scientist':    { emoji: '📊', roadmap: 'https://www.youtube.com/watch?v=yBcfzZJ-gS8' },
+  'Data Engineer':     { emoji: '🔧', roadmap: 'https://www.youtube.com/watch?v=odZHmYgebbw' },
+  'Software Engineer': { emoji: '💻', roadmap: 'https://www.youtube.com/watch?v=p2j6Wq57MEE' },
+  'Web Developer':     { emoji: '🌐', roadmap: 'https://www.youtube.com/watch?v=4WjtQjPQGIs' },
+  'Data Analyst':      { emoji: '📈', roadmap: 'https://www.youtube.com/watch?v=qkm5NwKVzDk' },
+  'Cloud Engineer':    { emoji: '☁️',  roadmap: 'https://www.youtube.com/watch?v=VjGVL3P1zqY' },
+  'DevOps Engineer':   { emoji: '⚙️',  roadmap: 'https://www.youtube.com/watch?v=9pZ2xmsSDdo' },
+  'Cybersecurity':     { emoji: '🔒', roadmap: 'https://www.youtube.com/watch?v=hXSFdwIOfnE' },
+  'Blockchain Engineer':{ emoji: '⛓️', roadmap: null },
+  'Consultant':        { emoji: '🤝', roadmap: null },
 };
 
-const EMOJIS = {
-  'Data Scientist':'📊','Data Engineer':'🔧','Software Engineer':'💻',
-  'Web Developer':'🌐','Data Analyst':'📈','Cloud Engineer':'☁️',
-  'DevOps Engineer':'⚙️','Cybersecurity':'🔒','Blockchain Engineer':'⛓️','Consultant':'🤝'
+// FIX 4 — category colors in one place
+const CAT_COL = {
+  Languages:  '#c8f135',
+  Cloud:      '#2dd4bf',
+  Tools:      '#c8f135',
+  Frameworks: '#2dd4bf',
+  Databases:  '#c8f135'
 };
 
-// Category → color (only lime/teal)
-const CAT_COL = { Languages:'#c8f135', Cloud:'#2dd4bf', Tools:'#c8f135', Frameworks:'#2dd4bf', Databases:'#c8f135' };
+// FIX 4 — EXP_ORD derived from data at boot (see seedFilters)
+// Fallback order used only if data has no recognisable bands
+const EXP_FALLBACK = ['0 - 3 yrs', '4 - 7 yrs', '8 - 10 yrs', '10+ yrs'];
+let EXP_ORD = [...EXP_FALLBACK];
 
 // Chart.js shared tooltip config
 const TT = {
@@ -550,25 +596,58 @@ const TT = {
 };
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   BOOT
+   BOOT — progress bar tied to actual fetch
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function setBootProgress(pct, label) {
+  const fill = document.getElementById('boot-fill');
+  const sub  = document.getElementById('boot-sub');
+  if (fill) fill.style.width = pct + '%';
+  if (sub && label) sub.textContent = label;
+}
+
 async function boot() {
   try {
+    setBootProgress(10, 'Fetching data…');
     const res = await fetch('./Final_Data.csv');
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const { data } = Papa.parse(await res.text(), { header:true, dynamicTyping:true, skipEmptyLines:true });
-    RAW = data.filter(r =>
-      r && r.COMPANY && r.TITLE && r.LOCATION && r.SKILLS &&
-      r.EXPERIENCE && r.CATEGORY &&
-      typeof r.SALARY === 'number' && r.SALARY > 0
-    );
+
+    setBootProgress(40, 'Parsing CSV…');
+    const text = await res.text();
+
+    setBootProgress(60, 'Processing records…');
+    const { data } = Papa.parse(text, { header:true, dynamicTyping:true, skipEmptyLines:true });
+
+    // FIX 3 — normalise TITLE and LOCATION to lowercase-trimmed key for dedup
+    RAW = data
+      .filter(r =>
+        r && r.COMPANY && r.TITLE && r.LOCATION && r.SKILLS &&
+        r.EXPERIENCE && r.CATEGORY &&
+        typeof r.SALARY === 'number' && r.SALARY > 0
+      )
+      .map(r => ({
+        ...r,
+        // FIX 3 — canonical Title: trim + title-case first letter only (preserve rest)
+        TITLE:    normTitle(r.TITLE),
+        // FIX 3 — canonical Location: trim + capitalise first letter
+        LOCATION: normCity(r.LOCATION),
+        // trim EXPERIENCE to avoid trailing-space mismatches
+        EXPERIENCE: (r.EXPERIENCE + '').trim(),
+        COMPANY:  r.COMPANY.trim(),
+        CATEGORY: r.CATEGORY.trim(),
+      }));
+
+    setBootProgress(80, 'Building filters…');
     FLT = [...RAW];
     seedFilters();
+
+    setBootProgress(100, 'Rendering…');
     render();
+
     const b = document.getElementById('boot');
     b.style.opacity = '0';
     setTimeout(() => b.style.display = 'none', 450);
     document.getElementById('app').style.display = 'block';
+
   } catch(e) {
     document.getElementById('boot').innerHTML = `
       <div style="text-align:center;max-width:300px;padding:20px">
@@ -583,6 +662,21 @@ async function boot() {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FIX 3 — DATA NORMALISATION HELPERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+// Normalise city: trim + capitalise first letter of each word
+function normCity(s) {
+  return (s + '').trim().toLowerCase()
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Normalise title: trim + capitalise first letter of each word
+// Keeps the rest of each word as-is (avoids lowercasing acronyms like "AI")
+function normTitle(s) {
+  return (s + '').trim().replace(/\b\w/g, c => c.toUpperCase());
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    FILTERS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function seedFilters() {
@@ -591,8 +685,21 @@ function seedFilters() {
     while (s.options.length > 1) s.remove(1);
     opts.forEach(o => s.add(new Option(o, o)));
   }
+
+  // FIX 4 — EXP_ORD derived from actual data, sorted by known order
+  const expInData = [...new Set(RAW.map(r => r.EXPERIENCE))];
+  // Sort by fallback order if they match; unknown bands go last
+  EXP_ORD = expInData.sort((a, b) => {
+    const ai = EXP_FALLBACK.indexOf(a);
+    const bi = EXP_FALLBACK.indexOf(b);
+    if (ai === -1 && bi === -1) return a.localeCompare(b);
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+
   fill('f-title', [...new Set(RAW.map(r => r.TITLE))].sort());
-  fill('f-exp',   EXP_ORD.filter(e => RAW.some(r => r.EXPERIENCE === e)));
+  fill('f-exp',   EXP_ORD);
   fill('f-loc',   [...new Set(RAW.map(r => r.LOCATION))].sort());
   fill('f-cat',   [...new Set(RAW.map(r => r.CATEGORY))].sort());
 }
@@ -602,17 +709,52 @@ function go() {
   const e = document.getElementById('f-exp').value;
   const l = document.getElementById('f-loc').value;
   const c = document.getElementById('f-cat').value;
+
   // Always rebuild from RAW — never chain filters
   FLT = RAW.filter(r =>
     (!t || r.TITLE === t) && (!e || r.EXPERIENCE === e) &&
     (!l || r.LOCATION === l) && (!c || r.CATEGORY === c)
   );
+
+  // Highlight active selects
+  ['f-title','f-exp','f-loc','f-cat'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.toggle('active', el.value !== '');
+  });
+
   render();
 }
 
 function rst() {
-  ['f-title','f-exp','f-loc','f-cat'].forEach(id => document.getElementById(id).selectedIndex = 0);
+  ['f-title','f-exp','f-loc','f-cat'].forEach(id => {
+    const el = document.getElementById(id);
+    el.selectedIndex = 0;
+    el.classList.remove('active');
+  });
   go();
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FIX 1 — EMPTY STATE TOGGLE
+   Switches between content and empty state
+   for each tab section.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function setEmpty(isEmpty) {
+  const sections = ['overview', 'skills', 'salary', 'careers'];
+  sections.forEach(s => {
+    const empty   = document.getElementById('empty-' + s);
+    const content = document.getElementById('content-' + s);
+    if (!empty || !content) return;
+    if (isEmpty) {
+      empty.classList.add('on');
+      content.style.display = 'none';
+    } else {
+      empty.classList.remove('on');
+      content.style.display = '';
+    }
+  });
+  // Update filter count
+  txt('fc', isEmpty ? '0' : fmtN(FLT.length));
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -631,83 +773,143 @@ function txt(id, v) { const e = document.getElementById(id); if (e) e.textConten
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    NUMBER FORMAT
-   fmtL: format raw salary (e.g. 2250377) → "₹22.5L"
+   fmtL: format raw salary → "₹22.5L"
    fmtN: format count → "3,825"
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+// Salaries are stored in Rupees. ÷100000 = Lakhs.
 function fmtL(v) { return '₹' + (v / 100000).toFixed(1) + 'L'; }
 function fmtN(v) { return Number(v).toLocaleString(); }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   DATA UTILS
+   FIX 2 — SINGLE-PASS DATA COMPUTATION
+   One full pass over FLT builds everything
+   needed by all four tabs: counts, sums,
+   salary arrays, skill counts, cat totals.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+function computeAll(d) {
+  const roleCnt  = {};  // TITLE → count
+  const roleSal  = {};  // TITLE → sum of salary
+  const expCnt   = {};  // EXPERIENCE → count
+  const expSal   = {};  // EXPERIENCE → sum of salary
+  const expArr   = {};  // EXPERIENCE → [salaries] for median
+  const locCnt   = {};  // LOCATION → count
+  const catCnt   = {};  // CATEGORY → count
+  // skills: SKILLS field is comma-separated per row
+  const skillCnt = {};  // skill → count
+  // skills by category: cat → { skill → count }
+  const catSkill = {};  // CATEGORY → { SKILLS → count }
+
+  let totalSal = 0;
+  const allSals = [];
+  const companies = new Set();
+  const cities    = new Set();
+
+  for (const r of d) {
+    // totals
+    totalSal += r.SALARY;
+    allSals.push(r.SALARY);
+    companies.add(r.COMPANY);
+    cities.add(r.LOCATION);
+
+    // role
+    roleCnt[r.TITLE] = (roleCnt[r.TITLE] || 0) + 1;
+    roleSal[r.TITLE] = (roleSal[r.TITLE] || 0) + r.SALARY;
+
+    // experience
+    expCnt[r.EXPERIENCE] = (expCnt[r.EXPERIENCE] || 0) + 1;
+    expSal[r.EXPERIENCE] = (expSal[r.EXPERIENCE] || 0) + r.SALARY;
+    if (!expArr[r.EXPERIENCE]) expArr[r.EXPERIENCE] = [];
+    expArr[r.EXPERIENCE].push(r.SALARY);
+
+    // location
+    locCnt[r.LOCATION] = (locCnt[r.LOCATION] || 0) + 1;
+
+    // category
+    catCnt[r.CATEGORY] = (catCnt[r.CATEGORY] || 0) + 1;
+
+    // skills — comma-split each row
+    if (r.SKILLS) {
+      const skills = r.SKILLS.split(',').map(s => s.trim()).filter(Boolean);
+      for (const sk of skills) {
+        skillCnt[sk] = (skillCnt[sk] || 0) + 1;
+      }
+    }
+
+    // skills by category (SKILLS field as single value per row — keep original behaviour)
+    const sk = r.SKILLS?.trim();
+    if (sk) {
+      if (!catSkill[r.CATEGORY]) catSkill[r.CATEGORY] = {};
+      catSkill[r.CATEGORY][sk] = (catSkill[r.CATEGORY][sk] || 0) + 1;
+    }
+  }
+
+  // Build sorted arrays
+  const rolesSorted = Object.entries(roleCnt)
+    .map(([label, count]) => ({ label, count, avg: roleSal[label] / count }))
+    .sort((a, b) => b.count - a.count);
+
+  const rolesAvgSorted = [...rolesSorted].sort((a, b) => b.avg - a.avg);
+
+  const skillsSorted = Object.entries(skillCnt)
+    .sort((a, b) => b[1] - a[1]);
+
+  const catsSorted = Object.entries(catCnt)
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count);
+
+  const citiesSorted = Object.entries(locCnt)
+    .map(([label, val]) => ({ label, val }))
+    .sort((a, b) => b.val - a.val);
+
+  const expData = EXP_ORD
+    .filter(e => expCnt[e])
+    .map(e => ({
+      e,
+      avg: expSal[e] / expCnt[e],
+      med: median(expArr[e]),
+      n:   expCnt[e]
+    }));
+
+  return {
+    total: d.length,
+    totalSal,
+    avgSal:     d.length ? totalSal / d.length : 0,
+    medSal:     median(allSals),
+    companies:  companies.size,
+    cityCount:  cities.size,
+    rolesSorted,
+    rolesAvgSorted,
+    skillsSorted,
+    catsSorted,
+    citiesSorted,
+    expData,
+    catSkill,
+  };
+}
+
 function median(arr) {
-  const s = [...arr].sort((a,b) => a-b);
+  if (!arr || !arr.length) return 0;
+  const s = [...arr].sort((a, b) => a - b);
   const m = Math.floor(s.length / 2);
   return s.length % 2 ? s[m] : (s[m-1] + s[m]) / 2;
 }
 
-// Group by key → count
-function groupCount(data, key) {
-  const c = {};
-  data.forEach(r => { c[r[key]] = (c[r[key]] || 0) + 1; });
-  return Object.entries(c).map(([label, count]) => ({ label, count }));
-}
-
-// Group by key → avg salary
-function groupAvg(data, key) {
-  const s = {}, n = {};
-  data.forEach(r => {
-    s[r[key]] = (s[r[key]] || 0) + r.SALARY;
-    n[r[key]] = (n[r[key]] || 0) + 1;
-  });
-  return Object.entries(s).map(([label, sum]) => ({
-    label,
-    avg: sum / n[label],
-    count: n[label]
-  }));
-}
-
-// Count skill occurrences across listings
-function skillCounts(data, topN) {
-  const c = {};
-  data.forEach(r => {
-    if (r.SKILLS) r.SKILLS.split(',').map(s => s.trim()).forEach(s => { c[s] = (c[s] || 0) + 1; });
-  });
-  return Object.entries(c).sort((a,b) => b[1]-a[1]).slice(0, topN);
-}
-
-// Top skills for a specific role
-function roleSkills(data, role, topN) {
-  const c = {};
-  data.filter(r => r.TITLE === role).forEach(r => {
-    if (r.SKILLS) r.SKILLS.split(',').map(s => s.trim()).forEach(s => { c[s] = (c[s] || 0) + 1; });
-  });
-  return Object.entries(c).sort((a,b) => b[1]-a[1]).slice(0, topN).map(([s]) => s);
-}
-
-// Skills grouped by category
-function skillsByCategory(data) {
-  const m = {};
-  data.forEach(r => {
-    const cat = r.CATEGORY, sk = r.SKILLS?.trim();
-    if (!sk) return;
-    if (!m[cat]) m[cat] = {};
-    m[cat][sk] = (m[cat][sk] || 0) + 1;
-  });
-  return m;
-}
-
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    BAR LIST RENDERER
-   items: [{label, val}]
-   labelW: CSS width for label column
-   teal: use teal color instead of lime
-   valFmt: function to format val → display string
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function renderBars(containerId, items, labelW, teal, valFmt) {
-  const max = items.length ? items[0].val : 1;
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!items.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">—</div>
+      <div class="empty-state-title">No data</div>
+    </div>`;
+    return;
+  }
+  const max = items[0].val;
   const colorClass = teal ? 'brow-fill t' : 'brow-fill';
-  document.getElementById(containerId).innerHTML = items.map(item => {
+  el.innerHTML = items.map(item => {
     const pct = max > 0 ? ((item.val / max) * 100).toFixed(1) : 0;
     return `<div class="brow" style="--lw:${labelW}">
       <div class="brow-label">${item.label}</div>
@@ -721,56 +923,51 @@ function renderBars(containerId, items, labelW, teal, valFmt) {
    MAIN RENDER
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 function render() {
-  const d = FLT;
-  if (!d.length) return;
+  // FIX 1 — Handle empty filter results
+  if (!FLT.length) {
+    setEmpty(true);
+    txt('fc', '0');
+    return;
+  }
+  setEmpty(false);
 
-  const total   = d.length;
-  const avgSal  = d.reduce((a,r) => a + r.SALARY, 0) / total;
-  const medSal  = median(d.map(r => r.SALARY));
-  const cos     = new Set(d.map(r => r.COMPANY)).size;
-  const locs    = new Set(d.map(r => r.LOCATION)).size;
+  // FIX 2 — Single pass computation
+  const C = computeAll(FLT);
 
-  const roleCounts = groupCount(d, 'TITLE').sort((a,b) => b.count - a.count);
-  const roleAvgs   = groupAvg(d, 'TITLE').sort((a,b) => b.avg - a.avg);
-  const topSkill   = skillCounts(d, 1);
+  txt('fc',     fmtN(C.total));
+  txt('k-n',    fmtN(C.total));
+  txt('k-cos',  fmtN(C.companies));
+  txt('k-loc',  C.cityCount);
+  txt('k-avg',  fmtL(C.avgSal));
+  txt('k-med',  fmtL(C.medSal));
+  txt('k-role', C.rolesSorted[0]?.label || '—');
+  txt('k-rn',   fmtN(C.rolesSorted[0]?.count || 0));
+  txt('k-sk',   C.skillsSorted[0]?.[0] || '—');
+  txt('k-skn',  fmtN(C.skillsSorted[0]?.[1] || 0));
 
-  // Header / filter count
-  txt('hn',   fmtN(total));
-  txt('hc',   locs);
-  txt('fc',   fmtN(total));
-
-  // KPIs
-  txt('k-n',    fmtN(total));
-  txt('k-cos',  fmtN(cos));
-  txt('k-loc',  locs);
-  txt('k-avg',  fmtL(avgSal));
-  txt('k-med',  fmtL(medSal));
-  txt('k-role', roleCounts[0]?.label || '—');
-  txt('k-rn',   fmtN(roleCounts[0]?.count || 0));
-  txt('k-sk',   topSkill[0]?.[0] || '—');
-  txt('k-skn',  fmtN(topSkill[0]?.[1] || 0));
-
-  paintOverview(d, roleCounts);
-  paintSkills(d);
-  paintSalary(d, roleAvgs);
-  paintCareers(d, roleCounts);
+  paintOverview(C);
+  paintSkills(C);
+  paintSalary(C);
+  paintCareers(C);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    OVERVIEW TAB
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function paintOverview(d, roleCounts) {
-  // Role demand — show ALL roles (up to 10)
-  const roles = roleCounts.slice(0, 10);
+function paintOverview(C) {
+  const TOP_N = 10;
+
+  // Role demand
+  const roles = C.rolesSorted.slice(0, TOP_N);
   txt('ov-rp', roles.length + ' roles');
   renderBars('ov-roles', roles.map(r => ({ label: r.label, val: r.count })), '140px', false, fmtN);
 
-  // Top skills — show same count as roles so heights match
-  const skills = skillCounts(d, roles.length);
+  // FIX 2 — Top skills: use same TOP_N as roles for height consistency
+  const skills = C.skillsSorted.slice(0, TOP_N);
   renderBars('ov-skills', skills.map(([s,c]) => ({ label: s, val: c })), '90px', true, fmtN);
 
   // Donut — skill categories
-  const cats = groupCount(d, 'CATEGORY').sort((a,b) => b.count - a.count);
+  const cats      = C.catsSorted;
   const catColors = cats.map(c => CAT_COL[c.label] || '#505068');
   mkChart('ov-donut', {
     type: 'doughnut',
@@ -790,55 +987,47 @@ function paintOverview(d, roleCounts) {
     `<div class="dl"><div class="dl-dot" style="background:${catColors[i]}"></div><span>${c.label}</span><span style="color:var(--snow);margin-left:4px">${(c.count/1000).toFixed(1)}K</span></div>`
   ).join('');
 
-  // City hiring volume — merge Chennai/chennai case
-  const cityMap = {};
-  groupCount(d, 'LOCATION').forEach(c => {
-    const k = c.label.trim().toLowerCase();
-    cityMap[k] = (cityMap[k] || 0) + c.count;
-  });
-  const cities = Object.entries(cityMap)
-    .map(([k, v]) => ({ label: k.charAt(0).toUpperCase() + k.slice(1), val: v }))
-    .sort((a,b) => b.val - a.val).slice(0, 8);
+  // City hiring volume — already normalised at boot (normCity), no extra merge needed
+  const cities = C.citiesSorted.slice(0, 8);
   renderBars('ov-geo', cities, '90px', true, fmtN);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    SKILLS TAB
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function paintSkills(d) {
-  // Top 10 skills (matches category count = 5, but 10 vs 5 is fine — different sections)
-  const demand = skillCounts(d, 10);
+function paintSkills(C) {
+  const demand = C.skillsSorted.slice(0, 10);
   txt('sk-dp', demand.length + ' skills');
   renderBars('sk-demand', demand.map(([s,c]) => ({ label: s, val: c })), '100px', false, fmtN);
 
-  // Category distribution — 5 rows, matches well visually
-  const cats = groupCount(d, 'CATEGORY').sort((a,b) => b.count - a.count);
-  document.getElementById('sk-cats').innerHTML = cats.map(c => {
-    const col = CAT_COL[c.label] || '#505068';
-    const max = cats[0].count;
-    const pct = ((c.count / max) * 100).toFixed(1);
-    return `<div class="brow" style="--lw:100px">
-      <div class="brow-label" style="display:flex;align-items:center;gap:5px">
-        <span style="width:6px;height:6px;border-radius:50%;background:${col};flex-shrink:0"></span>${c.label}
-      </div>
-      <div class="brow-track"><div class="brow-fill" style="width:${pct}%;background:${col}"></div></div>
-      <div class="brow-val">${(c.count/1000).toFixed(1)}K</div>
-    </div>`;
-  }).join('');
+  const cats = C.catsSorted;
+  const catEl = document.getElementById('sk-cats');
+  if (catEl) {
+    catEl.innerHTML = cats.map(c => {
+      const col = CAT_COL[c.label] || '#505068';
+      const max = cats[0].count;
+      const pct = ((c.count / max) * 100).toFixed(1);
+      return `<div class="brow" style="--lw:100px">
+        <div class="brow-label" style="display:flex;align-items:center;gap:5px">
+          <span style="width:6px;height:6px;border-radius:50%;background:${col};flex-shrink:0"></span>${c.label}
+        </div>
+        <div class="brow-track"><div class="brow-fill" style="width:${pct}%;background:${col}"></div></div>
+        <div class="brow-val">${(c.count/1000).toFixed(1)}K</div>
+      </div>`;
+    }).join('');
+  }
 
   // Category columns
-  const catMap = skillsByCategory(d);
-  const catOrder = Object.entries(catMap)
-    .map(([k,v]) => ({ k, tot: Object.values(v).reduce((a,b) => a+b, 0) }))
-    .sort((a,b) => b.tot - a.tot).map(x => x.k);
-
-  const grid = document.getElementById('sk-catgrid');
+  const catMap   = C.catSkill;
+  const catOrder = cats.map(c => c.label); // already sorted by count
+  const grid     = document.getElementById('sk-catgrid');
+  if (!grid) return;
   grid.style.gridTemplateColumns = `repeat(${Math.min(catOrder.length, 5)}, 1fr)`;
   grid.innerHTML = catOrder.map(cat => {
     const items = Object.entries(catMap[cat] || {}).sort((a,b) => b[1]-a[1]).slice(0, 7);
     const maxN  = items[0]?.[1] || 1;
     const col   = CAT_COL[cat] || '#505068';
-    const tot   = Object.values(catMap[cat]).reduce((a,b) => a+b, 0);
+    const tot   = Object.values(catMap[cat] || {}).reduce((a,b) => a+b, 0);
     return `<div class="catcol">
       <div class="catcol-hd">
         <span class="catcol-name">${cat}</span>
@@ -860,15 +1049,8 @@ function paintSkills(d) {
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    SALARY TAB
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function paintSalary(d, roleAvgs) {
-  // Experience ladder
-  const expData = EXP_ORD.map(e => {
-    const rows = d.filter(r => r.EXPERIENCE === e);
-    if (!rows.length) return null;
-    const avg = rows.reduce((a,r) => a + r.SALARY, 0) / rows.length;
-    const med = median(rows.map(r => r.SALARY));
-    return { e, avg, med, n: rows.length };
-  }).filter(Boolean);
+function paintSalary(C) {
+  const expData = C.expData;
 
   // Experience line chart
   mkChart('sal-exp', {
@@ -909,7 +1091,7 @@ function paintSalary(d, roleAvgs) {
   const bands  = ['<5L','5–10L','10–15L','15–20L','20–25L','25–30L','30–35L','35–40L','40–50L'];
   const edges  = [0, 5e5, 1e6, 1.5e6, 2e6, 2.5e6, 3e6, 3.5e6, 4e6, 5.1e6];
   const counts = Array(9).fill(0);
-  d.forEach(r => {
+  FLT.forEach(r => {
     for (let i = 0; i < 9; i++) {
       if (r.SALARY > edges[i] && r.SALARY <= edges[i+1]) { counts[i]++; break; }
     }
@@ -946,56 +1128,88 @@ function paintSalary(d, roleAvgs) {
     'background:rgba(45,212,191,.12);color:#2dd4bf',
     'background:rgba(45,212,191,.07);color:#1a9082'
   ];
-  document.getElementById('sal-etbl').innerHTML =
-    `<thead><tr><th>Band</th><th>Avg</th><th>Median</th><th>Listings</th><th>vs Entry</th></tr></thead>
-     <tbody>${expData.map((x, i) => `<tr>
-       <td><span class="etag" style="${tagStyles[i]}">${x.e}</span></td>
-       <td style="color:var(--snow);font-weight:500">${fmtL(x.avg)}</td>
-       <td style="color:var(--mid)">${fmtL(x.med)}</td>
-       <td style="color:var(--dim)">${fmtN(x.n)}</td>
-       <td style="color:var(--lime)">${(x.avg / entry).toFixed(1)}×</td>
-     </tr>`).join('')}</tbody>`;
+  const etbl = document.getElementById('sal-etbl');
+  if (etbl) {
+    if (!expData.length) {
+      etbl.innerHTML = `<tbody><tr><td colspan="5" style="text-align:center;color:var(--dim);padding:40px 12px">No experience data available for this filter.</td></tr></tbody>`;
+    } else {
+      etbl.innerHTML =
+        `<thead><tr><th>Band</th><th>Avg</th><th>Median</th><th>Listings</th><th>vs Entry</th></tr></thead>
+         <tbody>${expData.map((x, i) => `<tr>
+           <td><span class="etag" style="${tagStyles[i] || tagStyles[tagStyles.length-1]}">${x.e}</span></td>
+           <td style="color:var(--snow);font-weight:500">${fmtL(x.avg)}</td>
+           <td style="color:var(--mid)">${fmtL(x.med)}</td>
+           <td style="color:var(--dim)">${fmtN(x.n)}</td>
+           <td style="color:var(--lime)">${(x.avg / entry).toFixed(1)}×</td>
+         </tr>`).join('')}</tbody>`;
+    }
+  }
 
-  // Role avg salary bars — correctly formatted using fmtL
-  txt('sal-rp', roleAvgs.length + ' roles');
-  const topRoles = roleAvgs.slice(0, 8);
+  // Role avg salary bars
+  txt('sal-rp', C.rolesAvgSorted.length + ' roles');
+  const topRoles = C.rolesAvgSorted.slice(0, 8);
   renderBars('sal-roles', topRoles.map(r => ({ label: r.label, val: r.avg })), '140px', true, fmtL);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    CAREERS TAB
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-function paintCareers(d, roleCounts) {
-  const avgMap = {};
-  groupAvg(d, 'TITLE').forEach(r => { avgMap[r.label] = r.avg; });
-  const cntMap = {};
-  roleCounts.forEach(r => { cntMap[r.label] = r.count; });
+function paintCareers(C) {
+  // FIX 4 — role meta from ROLE_META; roles without a roadmap still show if
+  // they're top roles (we just omit the CTA button for those)
+  const avgMap  = {};
+  C.rolesAvgSorted.forEach(r => { avgMap[r.label] = r.avg; });
 
-  const top = roleCounts.filter(r => ROADMAPS[r.label]).slice(0, 6);
+  // Prefer roles that have a roadmap link; fall back to top roles if needed
+  const withRoadmap = C.rolesSorted.filter(r => ROLE_META[r.label]?.roadmap);
+  const top = withRoadmap.slice(0, 6);
+
+  // FIX 4 — top skills per role computed from FLT inline
+  function roleTopSkills(roleLabel, topN) {
+    const c = {};
+    FLT.filter(r => r.TITLE === roleLabel).forEach(r => {
+      if (r.SKILLS) r.SKILLS.split(',').map(s => s.trim()).filter(Boolean).forEach(s => { c[s] = (c[s] || 0) + 1; });
+    });
+    return Object.entries(c).sort((a,b) => b[1]-a[1]).slice(0, topN).map(([s]) => s);
+  }
+
   const cols = ['#c8f135','#2dd4bf','#c8f135','#2dd4bf','#c8f135','#2dd4bf'];
+  const grid = document.getElementById('career-grid');
 
-  document.getElementById('career-grid').innerHTML = top.map((r, i) => {
-    const col    = cols[i];
-    const avg    = avgMap[r.label] || 0;
-    const skills = roleSkills(d, r.label, 5);
-    return `<div class="cc">
-      <div class="cc-bar" style="background:${col}"></div>
-      <div class="cc-top">
-        <span class="cc-icon">${EMOJIS[r.label] || '💼'}</span>
-        <div class="cc-role">${r.label}</div>
-        <div class="cc-sal" style="color:${col}">${fmtL(avg)}<span style="font-size:.55rem;color:var(--dim);font-weight:400;margin-left:4px">avg/yr*</span></div>
-        <div class="cc-meta"><b>${fmtN(r.count)}</b> listings</div>
-      </div>
-      <div class="cc-bot">
-        <div class="cc-sklbl">Top Required Skills</div>
-        <div class="cc-pills">${skills.map(s => `<span class="cc-pill">${s}</span>`).join('')}</div>
-        <a class="cc-cta" href="${ROADMAPS[r.label]}" target="_blank" rel="noopener"
-          style="border:1px solid ${col};color:${col}"
-          onmouseover="this.style.background='${col}';this.style.color='#09090e'"
-          onmouseout="this.style.background='transparent';this.style.color='${col}'">▶ Learning Roadmap</a>
-      </div>
+  if (!grid) return;
+
+  if (!top.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--dim);font-size:.65rem">
+      No career roles with roadmaps match the current filter.
     </div>`;
-  }).join('');
+  } else {
+    grid.innerHTML = top.map((r, i) => {
+      const col    = cols[i];
+      const avg    = avgMap[r.label] || 0;
+      const meta   = ROLE_META[r.label] || {};
+      const skills = roleTopSkills(r.label, 5);
+      const ctaHtml = meta.roadmap
+        ? `<a class="cc-cta" href="${meta.roadmap}" target="_blank" rel="noopener"
+             style="border:1px solid ${col};color:${col};background:transparent"
+             onmouseover="this.style.background='${col}';this.style.color='#09090e'"
+             onmouseout="this.style.background='transparent';this.style.color='${col}'">▶ Learning Roadmap</a>`
+        : `<span class="cc-cta" style="border:1px solid var(--line);color:var(--dim);cursor:default">No roadmap yet</span>`;
+      return `<div class="cc">
+        <div class="cc-bar" style="background:${col}"></div>
+        <div class="cc-top">
+          <span class="cc-icon">${meta.emoji || '💼'}</span>
+          <div class="cc-role">${r.label}</div>
+          <div class="cc-sal" style="color:${col}">${fmtL(avg)}<span style="font-size:.55rem;color:var(--dim);font-weight:400;margin-left:4px">avg/yr*</span></div>
+          <div class="cc-meta"><b>${fmtN(r.count)}</b> listings</div>
+        </div>
+        <div class="cc-bot">
+          <div class="cc-sklbl">Top Required Skills</div>
+          <div class="cc-pills">${skills.map(s => `<span class="cc-pill">${s}</span>`).join('')}</div>
+          ${ctaHtml}
+        </div>
+      </div>`;
+    }).join('');
+  }
 
   // Bubble chart
   mkChart('car-bubble', {
